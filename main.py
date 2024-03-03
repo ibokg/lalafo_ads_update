@@ -1,6 +1,7 @@
+from time import sleep, time
+import configparser
 import requests
 import json
-import configparser
 
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8-sig')
@@ -33,15 +34,20 @@ try:
   headers['authorization'] = 'Bearer ' + token
   ads_response = requests.get(ads_url, headers=headers).json()
   ads_items = ads_response.get('items')
-
-  for item in ads_items:
+  start_time = time()
+  for index, item in enumerate(ads_items):
     ad_id = str(item['id'])
     update_data = json.dumps({
       'currency': item['currency']
     })
     update_url = ad_update_url + ad_id
     ad_update_response = requests.put(update_url, headers=headers, data=update_data).json()
-    print(ad_update_response)
+    print(ad_update_response.get('id'))
+
+    if index != len(ads_items) - 1:
+      sleep(3)
+  end_time = time()
+  print(f'Updated: {len(ads_items)} ads, to {end_time - start_time} seconds :)')
 
 except:
   print('Error')
